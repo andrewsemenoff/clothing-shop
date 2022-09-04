@@ -1,7 +1,9 @@
 .cart-dropdown-container {
     position: absolute;
-    width: 240px;
+    min-width: 240px;
+    max-width: fit-content;
     height: 340px;
+    overflow: auto;
     display: flex;
     flex-direction: column;
     padding: 20px;
@@ -20,7 +22,6 @@
       height: 240px;
       display: flex;
       flex-direction: column;
-      overflow: auto;
     }
   
     button {
