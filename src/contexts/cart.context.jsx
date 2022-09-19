@@ -5,9 +5,9 @@ const addCardItem = (cartItems, productToAdd) => {
   if (index > -1) {
     const itemToUpdate = { ...cartItems[index] };
     itemToUpdate.quantity += 1;
-    const updatedCardItems = [...cartItems];
-    updatedCardItems[index] = itemToUpdate;
-    return updatedCardItems;
+    const updatedCartItems = [...cartItems];
+    updatedCartItems[index] = itemToUpdate;
+    return updatedCartItems;
   }
   return [...cartItems, { ...productToAdd, quantity: 1 }];
 
@@ -29,6 +29,9 @@ export const CartContext = createContext({
   addItemToCart: () => {},
   cartCount: 0,
   increaseCartCount: () => {},
+  deleteCartItem: () => {},
+  decreaseCartItem: () => null,
+  totalPrice: 0,
 });
 
 const CartProvider = ({ children }) => {
@@ -40,18 +43,45 @@ const CartProvider = ({ children }) => {
   const addItemToCart = (productToAdd) => {
     setCartItems(addCardItem(cartItems, productToAdd));
   };
+  const decreaseCartItem = (productToUpdate) => {
+    const updatedCartItems = cartItems.map((product) => {
+      return product.id === productToUpdate.id && product.quantity > 0
+        ? { ...product, quantity: product.quantity - 1 }
+        : product;
+    });
+    setCartItems(updatedCartItems);
+  };
+  const deleteCartItem = (productToDelete) => {
+    const updatedCartItems = cartItems.filter(
+      (product) => product.id !== productToDelete.id
+    );
+    setCartItems(updatedCartItems);
+  };
   const [cartCount, setCartCount] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
   useEffect(() => {
-    const count =cartItems.reduce((total, cartItem)=>total + cartItem.quantity, 0 )
+    const count = cartItems.reduce(
+      (total, cartItem) => total + cartItem.quantity,
+      0
+    );
     setCartCount(count);
-  }, [cartItems])
-   
+  }, [cartItems]);
+  useEffect(() => {
+    const totalPrice = cartItems.reduce((total, cartItem) => {
+      return total + cartItem.price * cartItem.quantity;
+    }, 0);
+    setTotalPrice(totalPrice);
+  }, [cartItems]);
+
   const value = {
     isCartDropdownOpen,
     toggleIsCartDropdownOpen,
     cartItems,
     addItemToCart,
-    cartCount
+    cartCount,
+    deleteCartItem,
+    decreaseCartItem,
+    totalPrice,
   };
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
